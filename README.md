@@ -92,6 +92,7 @@ A new real-world dataset focused on complex facial shadow removal:
 <p align="center">
   <img src="assets/more_.png" width="90%">
 </p>
+
 ---
 
 ## 🙏 Acknowledgements
