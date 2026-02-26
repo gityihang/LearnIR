@@ -91,3 +91,24 @@ A new real-world dataset focused on complex facial shadow removal:
 </p>
 
 ---
+
+## 🙏 Acknowledgements
+
+This work was supported in part by:
+- Guangxi Natural Science Foundation (2024GXNSFAA010493)
+- Guangxi Key Research and Development Program (JB2504240003)
+- Shanghai Municipal Commission of Economy and Informatization (2024-GZL-RGZN-01008)
+- National Natural Science Foundation of China (52262047, 61862015)
+- Science and Technology Project of Guangxi (AD23023002, AD21220114)
+
+---
+## 📚 Citation
+If you find this work useful, please cite:
+
+```bibtex
+@inproceedings{baolearnir,
+  title={LearnIR: Learnable Posterior Sampling for Real-World Image Restoration},
+  author={Bao, Yihang and Huang, Zhen and Guan, Shanyan and Yang, Songlin and Ge, Yanhao and Li, Wei and Huang, Bukun and Xu, Zengmin},
+  booktitle={The Fourteenth International Conference on Learning Representations},
+  year={2026}
+}
