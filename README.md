@@ -86,8 +86,8 @@ A new real-world dataset focused on complex facial shadow removal:
 - Diverse identities and lighting (Soft & Hard shadows).
 
 ### Visual Comparisons
-| Input | Ground Truth | **LearnIR (Ours)** |
-| :---: | :---: | :---: |
-| <img src="assets/input.png" width="200"> | <img src="assets/gt.png" width="200"> | <img src="assets/ours.png" width="200"> |
+<p align="center">
+  <img src="assets/more_.png" width="90%">
+</p>
 
 ---
