@@ -24,193 +24,70 @@
 </p>
 
 <p align="center">
-  † Equal Contribution &nbsp;&nbsp;&nbsp;
-  * Corresponding Author
+  † Equal Contribution &nbsp;&nbsp;&nbsp; * Corresponding Author
 </p>
 
 <p align="center">
-  📄 Paper (Coming Soon) • 📌 Poster • 📊 Project Page
+  <a href="https://openreview.net/forum?id=aAb26aqU1E">
+    <img src="https://img.shields.io/badge/Paper-OpenReview-blue" alt="Paper">
+  </a>
+
+  <a href="https://github.com/gityihang/LearnIR">
+    <img src="https://img.shields.io/badge/Code-Coming%20Soon-yellow" alt="Code">
+  </a>
+
+  <a href="assets/poster.pdf">
+    <img src="https://img.shields.io/badge/Poster-Available-green" alt="Poster">
+  </a>
 </p>
 
 ---
 
-# 🔥 Abstract
+## 🔥 Abstract
 
-Image restoration in real-world conditions is highly challenging due to heterogeneous degradations such as haze, noise, shadows, and blur.
-
-Existing diffusion-based restoration methods remain limited:
-
-- Conditional generation struggles to balance fidelity and realism.
-- Inversion-based approaches accumulate trajectory errors.
-- Posterior sampling methods require a known forward degradation operator, which is rarely available in practice.
-
-We introduce **LearnIR**, a learnable diffusion posterior sampling framework that eliminates the need for an explicit forward operator. 
-
-LearnIR trains a lightweight correction model to directly predict gradient correction distributions, enabling **Diffusion Posterior Sampling Correction (DPSC)** that maintains posterior consistency during sampling.
-
-Additionally, we propose a **Dynamic Resolution Module (DRM)** that dynamically adjusts resolution across diffusion timesteps, preserving global structure in early stages and refining fine textures later — without requiring a pretrained VAE.
-
-Experiments on ISTD, O-HAZE, HazyDet, REVIDE, and our newly constructed FaceShadow dataset demonstrate state-of-the-art performance in PSNR, SSIM, and LPIPS.
+Real-world image restoration is challenging due to heterogeneous degradations (haze, noise, shadows, blur). **LearnIR** is a learnable diffusion posterior sampling framework that:
+- **Eliminates** the need for an explicit forward degradation operator.
+- **DPSC**: Learns a correction model to maintain posterior consistency.
+- **DRM**: Dynamically adjusts resolution across timesteps for better structure and detail.
 
 ---
 
-# 🧠 Method
+## 🧠 Method
 
-## Framework Overview
+### 1️⃣ Dynamic Resolution Module (DRM)
+We introduce a time-dependent downsampling operator $\mathcal{D}(\cdot, s(t))$ to construct a resolution-aware latent space.
 
-<p align="center">
-  <img src="assets/framework.png" width="90%">
-</p>
+The latent residual is:
 
-LearnIR integrates:
+$$\mathbf{R}_\mathbf{z} = \mathbf{z}_y^{(t)} - \mathbf{z}_0^{(t)}$$
 
-1. **Dynamic Resolution Module (DRM)**
-2. **Diffusion Posterior Sampling Correction (DPSC)**
+Forward diffusion process:
 
-The framework identifies an optimal sampling step \(T'\) to bypass unstable intermediate states and maintain trajectory consistency.
+$$q(\mathbf{z}_t | \mathbf{z}_0^{(t)}) = \mathcal{N} \left( \sqrt{\bar{\alpha}_t}\mathbf{z}_0^{(t)} + (1-\sqrt{\bar{\alpha}_t})\mathbf{R}_\mathbf{z}, (1-\bar{\alpha}_t)\mathbf{I} \right)$$
 
----
+> **Why DRM?** Low resolution in early stages strengthens global modeling; native resolution in later stages refines fine textures—all without a pretrained VAE.
 
-## 1️⃣ Dynamic Resolution Module (DRM)
+### 2️⃣ Diffusion Posterior Sampling Correction (DPSC)
+Standard denoising often lacks reverse posterior consistency. We learn the correction mean $\hat{\mu}_\theta$ via:
 
-We introduce a time-dependent downsampling operator:
+$$\mathcal{L}_{consistency} = \mathbb{E} \| \mu - \hat{\mu}_\theta \|_2^2$$
 
-\[
-\mathbf{z}_0^{(t)} = \mathcal{D}(\mathbf{x}_0, s(t)), \quad
-\mathbf{z}_y^{(t)} = \mathcal{D}(\mathbf{y}, s(t))
-\]
+**Total Objective:**
 
-This constructs a resolution-aware latent space.
-
-The latent residual is defined as:
-
-\[
-\mathbf{R}_\mathbf{z} = \mathbf{z}_y^{(t)} - \mathbf{z}_0^{(t)}
-\]
-
-Forward diffusion becomes:
-
-\[
-q(\mathbf{z}_t | \mathbf{z}_0^{(t)})
-=
-\mathcal{N}
-\left(
-\sqrt{\bar{\alpha}_t}\mathbf{z}_0^{(t)} +
-(1-\sqrt{\bar{\alpha}_t})\mathbf{R}_\mathbf{z},
-(1-\bar{\alpha}_t)\mathbf{I}
-\right)
-\]
-
-### Advantages
-
-- Early high-noise stages → low resolution → strong global modeling
-- Late stages → native resolution → detailed refinement
-- No additional pretrained VAE required
+$$\mathcal{L}_{total} = \mathcal{L}_{denoise} + \lambda \mathcal{L}_{consistency}$$
 
 ---
 
-## 2️⃣ Diffusion Posterior Sampling Correction (DPSC)
+## 📊 Experiments
 
-Standard denoising objective:
+### FaceShadow Dataset (Ours)
+A new real-world dataset focused on complex facial shadow removal:
+- **1,000** High-quality test images.
+- Diverse identities and lighting (Soft & Hard shadows).
 
-\[
-\mathcal{L}_{denoise}
-=
-\mathbb{E}
-\|\epsilon - \epsilon_\theta(\mathbf{z}_t,t)\|_2^2
-\]
-
-However, this does not guarantee reverse posterior consistency.
-
-We derive that posterior discrepancy follows:
-
-\[
-\mathbf{z}_{t-1}^{pred}
--
-\mathbf{z}_{t-1}^{forward}
-\sim
-\mathcal{N}(\mu(\cdot), \sigma^2(\cdot)\mathbf{I})
-\]
-
-We learn to predict the correction mean:
-
-\[
-\mathcal{L}_{consistency}
-=
-\mathbb{E}
-\|
-\mu - \hat{\mu}_\theta
-\|_2^2
-\]
-
-Final training objective:
-
-\[
-\mathcal{L}_{total}
-=
-\mathcal{L}_{denoise}
-+
-\lambda \mathcal{L}_{consistency}
-\]
+### Visual Comparisons
+| Input | Ground Truth | **LearnIR (Ours)** |
+| :---: | :---: | :---: |
+| <img src="assets/input.png" width="200"> | <img src="assets/gt.png" width="200"> | <img src="assets/ours.png" width="200"> |
 
 ---
-
-# 📊 Experiments
-
-We evaluate LearnIR on:
-
-- ISTD
-- O-HAZE
-- HazyDet
-- REVIDE
-- **FaceShadow (ours)**
-
----
-
-## FaceShadow Dataset
-
-We construct a real-world facial shadow dataset with:
-
-- 1,000 test images
-- Diverse identities
-- Complex illumination
-- Soft and hard shadow patterns
-- Internet-collected natural images
-
----
-
-## Visual Comparisons
-
-<p align="center">
-  <img src="assets/visual_comparison.png" width="95%">
-</p>
-
-LearnIR effectively:
-
-- Removes complex spatial shadows
-- Preserves identity-specific features
-- Maintains skin texture
-- Avoids structural artifacts
-- Produces natural lighting transitions
-
----
-
-## Real-World Generalization
-
-<p align="center">
-  <img src="assets/real_data.png" width="95%">
-</p>
-
-Our method demonstrates strong robustness and generalization ability in uncontrolled real-world conditions.
-
----
-
-# ⚙️ Installation
-
-```bash
-git clone https://github.com/yourname/LearnIR.git
-cd LearnIR
-
-conda create -n learnir python=3.10
-conda activate learnir
-pip install -r requirements.txt
