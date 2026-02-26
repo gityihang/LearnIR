@@ -53,6 +53,9 @@ Real-world image restoration is challenging due to heterogeneous degradations (h
 ---
 
 ## 🧠 Method
+<p align="center">
+  <img src="assets/method-1.png" width="90%">
+</p>
 
 ### 1️⃣ Dynamic Resolution Module (DRM)
 We introduce a time-dependent downsampling operator $\mathcal{D}(\cdot, s(t))$ to construct a resolution-aware latent space.
@@ -89,7 +92,6 @@ A new real-world dataset focused on complex facial shadow removal:
 <p align="center">
   <img src="assets/more_.png" width="90%">
 </p>
-
 ---
 
 ## 🙏 Acknowledgements
